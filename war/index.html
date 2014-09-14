@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="ISO-8859-1">
+<title>Hack the Hearst 2014</title>
+<style type="text/css">
+body,
+html {
+	font-family: arial, sans-serif;
+	color: #333;
+	margin: 3px 8px 2em;
+	padding: 0;
+	background: #FFF;
+}
+
+#main {
+	clear: both;
+	text-align: center;
+	vertical-align: middle;
+	margin-left: auto;
+	margin-right: auto;
+	height: 87%;
+}
+
+#content {
+	padding-top: 1.5em;
+	margin:0 auto;
+}
+
+#trademark {
+	color: #FF0000;
+	font-weight: bold;
+	font-size: 24px;
+}
+
+#info {    
+    text-align: center;
+    color: #777;
+    visibility: hidden;
+}
+
+#q {
+  margin-left: 8px;
+  height: 24px;
+}
+
+#q:focus { 
+	border: solid 1px blue; 
+}
+
+#result {
+    margin-left: 48px;
+    margin-right: 48px;
+    margin-top: 24px;
+    visibility: hidden;
+    height: 130px;
+}
+
+.search_form {
+    display: inline-block;
+    border: 1px inset #ccc;
+}
+
+.search_form input {
+    border: none;
+    padding: 0;
+    vertical-align: middle;
+}
+
+.search_form button {
+    border: none;
+    background: none;
+    vertical-align: middle;
+}
+</style>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+</head>
+
+<body>
+  <div id="header">
+    <div id="trademark">Wacka Wacka</div>
+	</div>
+
+<div id="main">	
+  <div id="content">
+    <div id="info">
+      <p id="info_start">Click on the microphone icon and begin speaking.</p>
+      <p id="info_speak_now">Speak now.</p>
+      <p id="info_no_speech">No speech was detected. You may need to adjust your
+        <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
+          microphone settings</a>.</p>
+      <p id="info_no_microphone" style="display:none">
+        No microphone was found. Ensure that a microphone is installed and that
+        <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
+        microphone settings</a> are configured correctly.</p>
+      <p id="info_allow">Click the "Allow" button above to enable your microphone.</p>
+      <p id="info_denied">Permission to use microphone was denied.</p>
+      <p id="info_blocked">Permission to use microphone is blocked. To change,
+        go to chrome://settings/contentExceptions#media-stream</p>
+      <p id="info_upgrade">Web Speech API is not supported by this browser.
+         Upgrade to <a href="//www.google.com/chrome">Chrome</a>
+         version 25 or later.</p>
+    </div>
+    <form class="search_form">
+      <input type="text" id="q" />
+      <button type="button" id="start_button" onclick="startButton(event); return false;">
+        <img id="mike" src="images/mic.gif" alt="Search" width="32" height="32"/>
+      </button>      
+    </form>
+    <input height="32" type="submit" value="Go" onclick="doQuery()" />
+    <pre id="result"></pre>
+  </div>  
+</div>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script>
+var recognizing = false;
+var ignore_onend;
+var start_timestamp;
+showInfo('info_start');
+
+if (!('webkitSpeechRecognition' in window)) {  
+  upgrade();
+} else {
+  start_button.style.display = 'inline-block';
+  var recognition = new webkitSpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = true;
+    
+  recognition.onstart = function() {
+    recognizing = true;  
+    showInfo('info_speak_now');  
+    mike.src = 'images/mic-animate.gif';                    
+  }; 
+    
+  recognition.onerror = function(event) { 
+    if (event.error == 'no-speech') {
+      mike.src = 'images/mic.gif';  
+      showInfo('info_no_speech');  
+      ignore_onend = true;
+    }
+    if (event.error == 'audio-capture') {
+      mike.src = 'images/mic.gif';      
+      showInfo('info_no_microphone');  
+      ignore_onend = true;
+    }
+    if (event.error == 'not-allowed') {
+      if (event.timeStamp - start_timestamp < 100) {
+        showInfo('info_blocked');
+      } else {
+        showInfo('info_denied');
+      }
+      ignore_onend = true;
+    }
+  };
+    
+  recognition.onend = function() {
+    recognizing = false;
+    if (ignore_onend) {
+      return;
+    }
+    mike.src = 'images/mic.gif';    
+    showInfo('info_start');    
+  };  
+    
+  recognition.onresult = function(event) {
+	  if (typeof(event.results) == 'undefined') {
+      recognition.onend = null;
+      recognition.stop();
+      upgrade();
+      return;
+    }
+	  if (event.results.length > 0) {
+    	q.value = event.results[0][0].transcript;
+	  }
+  };  
+}
+
+function showInfo(s) {
+  if (s) {
+    for (var child = info.firstChild; child; child = child.nextSibling) {
+      if (child.style) {
+        child.style.display = child.id == s ? 'inline' : 'none';
+      }
+    }
+    info.style.visibility = 'visible';
+  } else {
+    info.style.visibility = 'hidden';
+  }
+}
+
+function upgrade() {
+  start_button.style.visibility = 'hidden';
+  showInfo('info_upgrade');
+}
+
+function startButton(event) {
+  if (recognizing) {
+    recognition.stop();
+    return;
+  }
+      
+  recognition.lang = 'en-US';
+  recognition.start();
+  ignore_onend = false;
+  mike.src = 'images/mic-slash.gif';  
+  start_timestamp = event.timeStamp;
+}
+
+function doQuery() {
+  var baseUrl = '/search?q=' + q.value;
+  var xmlHttp = new XMLHttpRequest();
+  xmlHttp.open('GET', baseUrl, false);
+  xmlHttp.send();  
+  $('#result').text(xmlHttp.responseText);   
+  $('#result').css('visibility', 'visible');
+}
+</script>
+</body>
+
+<script>
+</script>
+
+</html>
