@@ -3,6 +3,8 @@
 <head>
 <meta charset="ISO-8859-1">
 <title>Hack the Hearst 2014</title>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="css/microphone.css">
 <style type="text/css">
 body,
 html {
@@ -48,12 +50,12 @@ html {
 	border: solid 1px blue; 
 }
 
-#result {
+#result-container {
     margin-left: 48px;
     margin-right: 48px;
     margin-top: 24px;
     visibility: hidden;
-    height: 130px;
+    height: auto;
 }
 
 .search_form {
@@ -72,8 +74,46 @@ html {
     background: none;
     vertical-align: middle;
 }
+
+.top-spacer { 
+	margin-top:20px; 
+}
+
+/* Pretty print JSON */
+pre {
+	background-color: #FDF6E3;
+	border: 1px solid #93A1A1;
+	padding: 0;
+	margin: 0;
+	text-align: left;	
+}
+
+pre > code {
+	white-space: pre;  
+  display: block;
+}
+
+.string {
+	color: #586E75;
+}
+
+.number {
+	color: #CB4B16;
+}
+
+.boolean {
+	color: #268BD2;
+}
+
+.null {
+	color: #D33682;
+}
+
+.key {
+	color: #DC322F;
+}
+/* Pretty print JSON */
 </style>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
 </head>
 
 <body>
@@ -81,141 +121,126 @@ html {
     <div id="trademark">Wacka Wacka</div>
 	</div>
 
-<div id="main">	
-  <div id="content">
-    <div id="info">
-      <p id="info_start">Click on the microphone icon and begin speaking.</p>
-      <p id="info_speak_now">Speak now.</p>
-      <p id="info_no_speech">No speech was detected. You may need to adjust your
-        <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
-          microphone settings</a>.</p>
-      <p id="info_no_microphone" style="display:none">
-        No microphone was found. Ensure that a microphone is installed and that
-        <a href="//support.google.com/chrome/bin/answer.py?hl=en&amp;answer=1407892">
-        microphone settings</a> are configured correctly.</p>
-      <p id="info_allow">Click the "Allow" button above to enable your microphone.</p>
-      <p id="info_denied">Permission to use microphone was denied.</p>
-      <p id="info_blocked">Permission to use microphone is blocked. To change,
-        go to chrome://settings/contentExceptions#media-stream</p>
-      <p id="info_upgrade">Web Speech API is not supported by this browser.
-         Upgrade to <a href="//www.google.com/chrome">Chrome</a>
-         version 25 or later.</p>
-    </div>
-    <form class="search_form">
-      <input type="text" id="q" />
-      <button type="button" id="start_button" onclick="startButton(event); return false;">
-        <img id="mike" src="images/mic.gif" alt="Search" width="32" height="32"/>
-      </button>      
-    </form>
-    <input height="32" type="submit" value="Go" onclick="doQuery()" />
-    <pre id="result"></pre>
-  </div>  
+<div class="container" id="main">	
+	<div class="row">
+		<div class="col-md-12">
+			<form class="search_form">
+      			<input type="text" id="q" size="56" />
+      			<button type="button">
+					<img id="microphone" src="images/mic.gif" alt="Search" width="32" height="32"/>
+				</button>       		     
+    		</form>    
+    		<button type="button" id="do-search" class="btn btn-default">Go</button>
+		</div>
+		<div id="info"></div>
+	</div>     	
+  
+ 	<div class="row top-spacer">
+ 		<div class="col-md-12">
+ 			<pre id="result-container"><code id="result"></code></pre>
+ 		</div>
+ 	</div>  
 </div>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
 <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+<script src="js/microphone.js"></script>
 <script>
-var recognizing = false;
-var ignore_onend;
-var start_timestamp;
-showInfo('info_start');
-
-if (!('webkitSpeechRecognition' in window)) {  
-  upgrade();
-} else {
-  start_button.style.display = 'inline-block';
-  var recognition = new webkitSpeechRecognition();
-  recognition.continuous = false;
-  recognition.interimResults = true;
-    
-  recognition.onstart = function() {
-    recognizing = true;  
-    showInfo('info_speak_now');  
-    mike.src = 'images/mic-animate.gif';                    
-  }; 
-    
-  recognition.onerror = function(event) { 
-    if (event.error == 'no-speech') {
-      mike.src = 'images/mic.gif';  
-      showInfo('info_no_speech');  
-      ignore_onend = true;
-    }
-    if (event.error == 'audio-capture') {
-      mike.src = 'images/mic.gif';      
-      showInfo('info_no_microphone');  
-      ignore_onend = true;
-    }
-    if (event.error == 'not-allowed') {
-      if (event.timeStamp - start_timestamp < 100) {
-        showInfo('info_blocked');
-      } else {
-        showInfo('info_denied');
-      }
-      ignore_onend = true;
-    }
-  };
-    
-  recognition.onend = function() {
-    recognizing = false;
-    if (ignore_onend) {
-      return;
-    }
-    mike.src = 'images/mic.gif';    
-    showInfo('info_start');    
-  };  
-    
-  recognition.onresult = function(event) {
-	  if (typeof(event.results) == 'undefined') {
-      recognition.onend = null;
-      recognition.stop();
-      upgrade();
-      return;
-    }
-	  if (event.results.length > 0) {
-    	q.value = event.results[0][0].transcript;
-	  }
-  };  
-}
-
-function showInfo(s) {
-  if (s) {
-    for (var child = info.firstChild; child; child = child.nextSibling) {
-      if (child.style) {
-        child.style.display = child.id == s ? 'inline' : 'none';
+var mic = new Wit.Microphone(document.getElementById("microphone"));
+var info = function (msg) {
+  document.getElementById("info").innerHTML = msg;
+};
+mic.onready = function () {
+  info("Microphone is ready to record");
+};
+mic.onaudiostart = function () {
+  info("Recording started");
+};
+mic.onaudioend = function () {
+  info("Recording stopped, processing started");
+};
+mic.onerror = function (err) {
+  info("Error: " + err);
+};
+mic.onresult = function (intent, entities) {
+  var result = kv("intent", intent);
+  for (var k in entities) {
+    var e = entities[k];
+    if (!(e instanceof Array)) {
+    	result += kv(k, e.value);
+    } else {
+      for (var i = 0; i < e.length; i++) {
+    	  result += kv(k, e[i].value);
       }
     }
-    info.style.visibility = 'visible';
-  } else {
-    info.style.visibility = 'hidden';
   }
+  
+  $.ajax({
+		data : { 
+			intent: result
+		},
+		success: function(data) {						
+			$('#result').html(syntaxHighlight(data));
+			$('#result').css('visibility', 'visible');
+		},
+		error: function(xhr, status, error) {
+			$('#result').html(syntaxHighlight(xhr.responseText));
+			$('#result-container').css('visibility', 'visible');
+		},
+		type: 'POST',
+		url: '/search'
+	});  
+};
+mic.connect("GCZJCLN3C4A472BHYLCAFSF7UTLYPHBX");
+// mic.start();
+// mic.stop();
+
+function kv (k, v) {
+	if (toString.call(v) !== "[object String]") {
+    	v = JSON.stringify(v);
+  	}
+  	return k + "=" + v + "\n";
 }
 
-function upgrade() {
-  start_button.style.visibility = 'hidden';
-  showInfo('info_upgrade');
+function syntaxHighlight(json) {
+    if (typeof json != 'string') {
+         json = JSON.stringify(json, undefined, 2);
+    }
+    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+        var cls = 'number';
+        if (/^"/.test(match)) {
+            if (/:$/.test(match)) {
+                cls = 'key';
+            } else {
+                cls = 'string';
+            }
+        } else if (/true|false/.test(match)) {
+            cls = 'boolean';
+        } else if (/null/.test(match)) {
+            cls = 'null';
+        }
+        return '<span class="' + cls + '">' + match + '</span>';
+    });
 }
 
-function startButton(event) {
-  if (recognizing) {
-    recognition.stop();
-    return;
-  }
-      
-  recognition.lang = 'en-US';
-  recognition.start();
-  ignore_onend = false;
-  mike.src = 'images/mic-slash.gif';  
-  start_timestamp = event.timeStamp;
-}
-
-function doQuery() {
-  var baseUrl = '/search?q=' + q.value;
-  var xmlHttp = new XMLHttpRequest();
-  xmlHttp.open('GET', baseUrl, false);
-  xmlHttp.send();  
-  $('#result').text(xmlHttp.responseText);   
-  $('#result').css('visibility', 'visible');
-}
+$("#do-search").click(function() {
+	$.ajax({
+		data : { 
+			q: $('#q').val()
+		},
+		success : function(data) {						
+			$('#result').html(syntaxHighlight(data));
+			$('#result-container').css('visibility', 'visible');
+		},
+		error : function(xhr, status, error) {
+			$('#result').html(syntaxHighlight(xhr.responseText));
+			$('#result-container').css('visibility', 'visible');
+		},
+		type : 'POST',
+		url : '/search'
+	});
+});
 </script>
 </body>
 

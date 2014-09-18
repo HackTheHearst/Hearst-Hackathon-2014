@@ -1,31 +1,38 @@
 package com.wackawacka.hackathon;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.appengine.labs.repackaged.org.json.JSONException;
+
 @SuppressWarnings("serial")
 public class ObjectSearchServlet extends HttpServlet {
-	
-	public final static String BASE_URL = "https://apis-qa.berkeley.edu/hearst_museum/select";
-	public final static String APP_ID = "99f70499";
-	public final static String APP_KEY = "acfacfd4c175cf965962562b37e2647a";
+		
+	private final static Logger LOGGER = Logger.getLogger(ObjectSearchServlet.class.getName());
 	
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		String response = "";
-		String query = req.getParameter("q");
-		if (query != null) {			
-			response = search(query);
+		String response = "";		
+		String intent = req.getParameter("intent");
+		try {
+			if (intent != null && !intent.isEmpty()) {
+				response = doQueryWithIntent(intent);
+			} else {
+				String query = req.getParameter("q");
+				if (query != null && !query.isEmpty()) {			
+					response = doQueryWithPhrase(query);				
+				}
+			}
+		} catch (JSONException e) {
+			LOGGER.severe(e.getMessage());
 		}
-		
+						
 		resp.setHeader("Access-Control-Allow-Origin", "*");
 		resp.setCharacterEncoding("utf-8");
 	    resp.setContentType("application/json");
@@ -38,22 +45,26 @@ public class ObjectSearchServlet extends HttpServlet {
 		doPost(req, resp);
 	}
 	
-	private String search(String object) throws IOException {		
-		String endpoint = BASE_URL + "?q=objname_s:" + object + "&wt=json&indent=on";		
-		URL url = new URL(endpoint);
-		HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
-		urlConnection.setRequestProperty("app_id", APP_ID);
-		urlConnection.setRequestProperty("app_key", APP_KEY);
-		urlConnection.setRequestMethod("GET");
+	private String doQueryWithIntent(String witJson) throws IOException, JSONException {
+		Map<String,String> parameters = Translator.translate(witJson);
+		String hearstQuery = Translator.composeHearstQuery(parameters);		
+		LOGGER.info("Hearst query - " + hearstQuery);
 		
-		BufferedReader in = new BufferedReader(new InputStreamReader(
-				urlConnection.getInputStream()));
-		StringBuffer buffer = new StringBuffer();
-		String inputLine;
-		while ((inputLine = in.readLine()) != null) {
-			buffer.append(inputLine);			
-		}
-		in.close();
-		return buffer.toString();
+		String hearstJson = Translator.executeHearstQuery(hearstQuery);
+		LOGGER.info("Hearst result - " + hearstJson);
+		return hearstJson;
+	}
+	
+	private String doQueryWithPhrase(String phrase) throws IOException, JSONException {		
+		String witJson = Translator.executeWitQuery(phrase);		
+		LOGGER.info("Wit result - " + witJson);
+		
+		Map<String,String> parameters = Translator.translate(witJson);
+		String hearstQuery = Translator.composeHearstQuery(parameters);		
+		LOGGER.info("Hearst query - " + hearstQuery);
+		
+		String hearstJson = Translator.executeHearstQuery(hearstQuery);
+		LOGGER.info("Hearst result - " + hearstJson);
+		return hearstJson;
 	}
 }
