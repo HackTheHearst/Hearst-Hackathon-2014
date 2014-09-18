@@ -81,7 +81,7 @@ public class Translator {
 					mapFields(entities, "number", "objcolldate_txt", "value", hearstMapping);
 					mapFields(entities, "location", "objfcpverbatim_txt", "value", hearstMapping);
 					mapFields(entities, "wikipedia_search_query", "objassoccult_txt", "value", hearstMapping);
-					mapFields(entities, "search-query", "objtype_txt", "value", hearstMapping);
+					mapFields(entities, "search_query", "objtype_txt", "value", hearstMapping);
 					mapFields(entities, "contact", "objcollector_txt", "value", hearstMapping);									
 				}
 			}
