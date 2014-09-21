@@ -18,21 +18,42 @@ public class ObjectSearchServlet extends HttpServlet {
 	@Override
 	public void doPost(HttpServletRequest req, HttpServletResponse resp)
 			throws IOException {
-		String response = "";		
-		String intent = req.getParameter("intent");
-		try {
-			if (intent != null && !intent.isEmpty()) {
-				response = doQueryWithIntent(intent);
-			} else {
-				String query = req.getParameter("q");
-				if (query != null && !query.isEmpty()) {			
-					response = doQueryWithPhrase(query);				
-				}
-			}
-		} catch (JSONException e) {
-			LOGGER.severe(e.getMessage());
+		int start = 0;
+		String startParam = req.getParameter("start");
+		if (startParam != null && !startParam.isEmpty()) {
+			try {
+				start = Math.max(0, Integer.parseInt(startParam));
+			} catch (NumberFormatException e) {}
 		}
-						
+		
+		int rows = 0;
+		String rowsParam = req.getParameter("rows");
+		if (rowsParam != null && !rowsParam.isEmpty()) {
+			try {
+				rows = Math.max(Integer.parseInt(rowsParam), 0);
+			} catch (NumberFormatException e) {}
+		}
+		
+		String response = "";	
+		String solr = req.getParameter("solr");
+		if (solr != null && !solr.isEmpty()) {
+			response = doSolrQuery(solr, start, rows);
+		} else {
+			String intent = req.getParameter("intent");
+			try {
+				if (intent != null && !intent.isEmpty()) {
+					response = doQueryWithIntent(intent, start, rows);
+				} else {
+					String query = req.getParameter("q");
+					if (query != null && !query.isEmpty()) {			
+						response = doQueryWithPhrase(query, start, rows);				
+					}
+				}
+			} catch (JSONException e) {
+				LOGGER.severe(e.getMessage());
+			}
+		}
+		
 		resp.setHeader("Access-Control-Allow-Origin", "*");
 		resp.setCharacterEncoding("utf-8");
 	    resp.setContentType("application/json");
@@ -45,26 +66,26 @@ public class ObjectSearchServlet extends HttpServlet {
 		doPost(req, resp);
 	}
 	
-	private String doQueryWithIntent(String witJson) throws IOException, JSONException {
-		Map<String,String> parameters = Translator.translate(witJson);
-		String hearstQuery = Translator.composeHearstQuery(parameters);		
-		LOGGER.info("Hearst query - " + hearstQuery);
-		
-		String hearstJson = Translator.executeHearstQuery(hearstQuery);
-		LOGGER.info("Hearst result - " + hearstJson);
+	private String doSolrQuery(String solr, int start, int rows) throws IOException {
+		LOGGER.info("SOLR query: " + solr + ", start: " + start + ", rows: " + rows);
+		String hearstJson = Translator.executeHearstQuery(solr, start, rows);
 		return hearstJson;
 	}
 	
-	private String doQueryWithPhrase(String phrase) throws IOException, JSONException {		
-		String witJson = Translator.executeWitQuery(phrase);		
-		LOGGER.info("Wit result - " + witJson);
-		
+	private String doQueryWithIntent(String witJson, int start, int rows) throws IOException, JSONException {
+		LOGGER.info("JSON query: " + witJson + ", start: " + start + ", rows: " + rows);
 		Map<String,String> parameters = Translator.translate(witJson);
 		String hearstQuery = Translator.composeHearstQuery(parameters);		
-		LOGGER.info("Hearst query - " + hearstQuery);
-		
-		String hearstJson = Translator.executeHearstQuery(hearstQuery);
-		LOGGER.info("Hearst result - " + hearstJson);
+		String hearstJson = Translator.executeHearstQuery(hearstQuery, start, rows);
+		return hearstJson;
+	}
+	
+	private String doQueryWithPhrase(String phrase, int start, int rows) throws IOException, JSONException {	
+		LOGGER.info("Phrase query: " + phrase + ", start: " + start + ", rows: " + rows);
+		String witJson = Translator.executeWitQuery(phrase);		
+		Map<String,String> parameters = Translator.translate(witJson);
+		String hearstQuery = Translator.composeHearstQuery(parameters);		
+		String hearstJson = Translator.executeHearstQuery(hearstQuery, start, rows);
 		return hearstJson;
 	}
 }

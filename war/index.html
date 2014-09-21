@@ -1,250 +1,705 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en-US">
 <head>
-<meta charset="ISO-8859-1">
-<title>Hack the Hearst 2014</title>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/css/bootstrap.min.css">
-<link rel="stylesheet" href="css/microphone.css">
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html">
+<title>HTH Natural Language Search</title>
+<link rel="stylesheet" href="bootstrap3/css/bootstrap.min.css">
 <style type="text/css">
-body,
-html {
-	font-family: arial, sans-serif;
-	color: #333;
-	margin: 3px 8px 2em;
-	padding: 0;
-	background: #FFF;
+/*
+Begin CSS from http://bootsnipp.com/snippets/featured/single-column-timeline-dotted
+*/
+.img-rounded {
+	border-radius: 3px;
 }
 
-#main {
+.img-thumbnail {
+	background-color: #fff;
+	border: 1px solid #ededf0;
+	border-radius: 3px;
+	display: inline-block;
+	height: auto;
+	line-height: 1.428571429;
+	max-width: 100%;
+	moz-transition: all .2s ease-in-out;
+	o-transition: all .2s ease-in-out;
+	padding: 2px;
+	transition: all .2s ease-in-out;
+	webkit-transition: all .2s ease-in-out;
+	margin-right: 8px;
+}
+
+.img-circle {
+	border-radius: 50%;
+}
+
+.timeline-centered {
+	position: relative;
+	margin-bottom: 30px;
+}
+
+.timeline-centered:before,.timeline-centered:after {
+	content: " ";
+	display: table;
+}
+
+.timeline-centered:after {
 	clear: both;
-	text-align: center;
-	vertical-align: middle;
-	margin-left: auto;
-	margin-right: auto;
-	height: 87%;
 }
 
-#content {
-	padding-top: 1.5em;
-	margin:0 auto;
+.timeline-centered:before,.timeline-centered:after {
+	content: " ";
+	display: table;
 }
 
-#trademark {
-	color: #FF0000;
+.timeline-centered:after {
+	clear: both;
+}
+
+.timeline-centered:before {
+	content: '';
+	position: absolute;
+	display: block;
+	width: 4px;
+	background: #f5f5f6;
+	/*left: 50%;*/
+	top: 20px;
+	bottom: 20px;
+	margin-left: 30px;
+}
+
+.timeline-centered .timeline-entry {
+	position: relative;
+	/*width: 50%;
+    float: right;*/
+	margin-top: 5px;
+	margin-left: 30px;
+	margin-bottom: 10px;
+	clear: both;
+}
+
+.timeline-centered .timeline-entry:before,.timeline-centered .timeline-entry:after
+	{
+	content: " ";
+	display: table;
+}
+
+.timeline-centered .timeline-entry:after {
+	clear: both;
+}
+
+.timeline-centered .timeline-entry:before,.timeline-centered .timeline-entry:after
+	{
+	content: " ";
+	display: table;
+}
+
+.timeline-centered .timeline-entry:after {
+	clear: both;
+}
+
+.timeline-centered .timeline-entry.begin {
+	margin-bottom: 0;
+}
+
+.timeline-centered .timeline-entry.left-aligned {
+	float: left;
+}
+
+.timeline-centered .timeline-entry.left-aligned .timeline-entry-inner {
+	margin-left: 0;
+	margin-right: -18px;
+}
+
+.timeline-centered .timeline-entry.left-aligned .timeline-entry-inner .timeline-time
+	{
+	left: auto;
+	right: -100px;
+	text-align: left;
+}
+
+.timeline-centered .timeline-entry.left-aligned .timeline-entry-inner .timeline-icon
+	{
+	float: right;
+}
+
+.timeline-centered .timeline-entry.left-aligned .timeline-entry-inner .timeline-label
+	{
+	margin-left: 0;
+	margin-right: 70px;
+}
+
+.timeline-centered .timeline-entry.left-aligned .timeline-entry-inner .timeline-label:after
+	{
+	left: auto;
+	right: 0;
+	margin-left: 0;
+	margin-right: -9px;
+	-moz-transform: rotate(180deg);
+	-o-transform: rotate(180deg);
+	-webkit-transform: rotate(180deg);
+	-ms-transform: rotate(180deg);
+	transform: rotate(180deg);
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner {
+	position: relative;
+	margin-left: -20px;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner:before,.timeline-centered .timeline-entry .timeline-entry-inner:after
+	{
+	content: " ";
+	display: table;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner:after {
+	clear: both;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner:before,.timeline-centered .timeline-entry .timeline-entry-inner:after
+	{
+	content: " ";
+	display: table;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner:after {
+	clear: both;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-time
+	{
+	position: absolute;
+	left: -100px;
+	text-align: right;
+	padding: 10px;
+	-webkit-box-sizing: border-box;
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-time>span
+	{
+	display: block;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-time>span:first-child
+	{
+	font-size: 15px;
 	font-weight: bold;
-	font-size: 24px;
 }
 
-#info {    
-    text-align: center;
-    color: #777;
-    visibility: hidden;
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-time>span:last-child
+	{
+	font-size: 12px;
 }
 
-#q {
-  margin-left: 8px;
-  height: 24px;
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon
+	{
+	background: #fff;
+	color: #737881;
+	display: block;
+	width: 40px;
+	height: 40px;
+	-webkit-background-clip: padding-box;
+	-moz-background-clip: padding;
+	background-clip: padding-box;
+	-webkit-border-radius: 20px;
+	-moz-border-radius: 20px;
+	border-radius: 20px;
+	text-align: center;
+	-moz-box-shadow: 0 0 0 5px #f5f5f6;
+	-webkit-box-shadow: 0 0 0 5px #f5f5f6;
+	box-shadow: 0 0 0 5px #f5f5f6;
+	line-height: 40px;
+	font-size: 15px;
+	float: left;
 }
 
-#q:focus { 
-	border: solid 1px blue; 
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon.bg-primary
+	{
+	background-color: #303641;
+	color: #fff;
 }
 
-#result-container {
-    margin-left: 48px;
-    margin-right: 48px;
-    margin-top: 24px;
-    visibility: hidden;
-    height: auto;
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon.bg-secondary
+	{
+	background-color: #ee4749;
+	color: #fff;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon.bg-success
+	{
+	background-color: #00a651;
+	color: #fff;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon.bg-info
+	{
+	background-color: #21a9e1;
+	color: #fff;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon.bg-warning
+	{
+	background-color: #fad839;
+	color: #fff;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-icon.bg-danger
+	{
+	background-color: #cc2424;
+	color: #fff;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-label
+	{
+	position: relative;
+	background: #f5f5f6;
+	padding: 1em;
+	margin-left: 60px;
+	-webkit-background-clip: padding-box;
+	-moz-background-clip: padding;
+	background-clip: padding-box;
+	-webkit-border-radius: 3px;
+	-moz-border-radius: 3px;
+	border-radius: 3px;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-label:after
+	{
+	content: '';
+	display: block;
+	position: absolute;
+	width: 0;
+	height: 0;
+	border-style: solid;
+	border-width: 9px 9px 9px 0;
+	border-color: transparent #f5f5f6 transparent transparent;
+	left: 0;
+	top: 10px;
+	margin-left: -9px;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2,.timeline-centered .timeline-entry .timeline-entry-inner .timeline-label p
+	{
+	color: #737881;
+	font-family: "Noto Sans", sans-serif;
+	font-size: 12px;
+	margin: 0;
+	line-height: 1.428571429;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-label p+p
+	{
+	margin-top: 15px;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2
+	{
+	font-size: 16px;
+	margin-bottom: 10px;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2 a
+	{
+	color: #303641;
+}
+
+.timeline-centered .timeline-entry .timeline-entry-inner .timeline-label h2 span
+	{
+	-webkit-opacity: .6;
+	-moz-opacity: .6;
+	opacity: .6;
+	-ms-filter: alpha(opacity = 60);
+	filter: alpha(opacity = 60);
+}
+/*
+End CSS from http://bootsnipp.com/snippets/featured/single-column-timeline-dotted
+*/
+
+img {
+	max-width: 64px;
+	max-height: 64px;
+}
+
+.center {
+	text-align: center;
+}
+
+.center-vertical {
+	line-height: 50px;
 }
 
 .search_form {
-    display: inline-block;
-    border: 1px inset #ccc;
+	border: 1px inset #ccc;
+	display: inline-block;
 }
 
 .search_form input {
-    border: none;
-    padding: 0;
-    vertical-align: middle;
+	border: none;
+	padding: 0;
+	vertical-align: middle;
 }
 
 .search_form button {
-    border: none;
-    background: none;
-    vertical-align: middle;
+	border: none;
+	background: none;
+	vertical-align: middle;
 }
 
-.top-spacer { 
-	margin-top:20px; 
+.top-spacer {
+	margin-top: 20px;
 }
 
-/* Pretty print JSON */
-pre {
-	background-color: #FDF6E3;
-	border: 1px solid #93A1A1;
-	padding: 0;
-	margin: 0;
-	text-align: left;	
+th,td {
+	padding: 8px;
 }
 
-pre > code {
-	white-space: pre;  
-  display: block;
+.quotes {
+	display: none;
 }
 
-.string {
-	color: #586E75;
+#page-selection {
+	visibility: hidden;
 }
 
-.number {
-	color: #CB4B16;
+.font-smaller {
+    font-size: .9em;
 }
 
-.boolean {
-	color: #268BD2;
+.font-lighter {
+    color: #bbb;
 }
-
-.null {
-	color: #D33682;
-}
-
-.key {
-	color: #DC322F;
-}
-/* Pretty print JSON */
 </style>
 </head>
 
 <body>
-  <div id="header">
-    <div id="trademark">Wacka Wacka</div>
+	<div class="navbar navbar-default navbar-static-top" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="#">Github</a>
+			</div>
+			<ul class="nav navbar-nav navbar-right">
+				<li><label class="center-vertical"><input id="image-toggle" type="checkbox" /><small>
+							Show Images</small></label></li>
+			</ul>
+		</div>
 	</div>
 
-<div class="container" id="main">	
-	<div class="row">
-		<div class="col-md-12">
-			<form class="search_form">
-      			<input type="text" id="q" size="56" />
-      			<button type="button">
-					<img id="microphone" src="images/mic.gif" alt="Search" width="32" height="32"/>
-				</button>       		     
-    		</form>    
-    		<button type="button" id="do-search" class="btn btn-default">Go</button>
+	<div class="container">
+		<div class="row top-spacer">
+			<div class="col-md-12 center">
+				<form class="search_form control-group" action="">
+					<input type="text" id="q" size="56" />
+				</form>
+				<button type="button" id="do-search" class="btn btn-default">Go</button>
+				<h5 class="quotes">Find basket used for dance</h5>
+				<h5 class="quotes">Find basket used for dance collected in
+					Klamath</h5>
+				<h5 class="quotes">Find spear used by Masai and collected in
+					Tanzania</h5>
+			</div>
 		</div>
-		<div id="info"></div>
-	</div>     	
-  
- 	<div class="row top-spacer">
- 		<div class="col-md-12">
- 			<pre id="result-container"><code id="result"></code></pre>
- 		</div>
- 	</div>  
-</div>
 
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
-<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
-<script src="js/microphone.js"></script>
-<script>
-var mic = new Wit.Microphone(document.getElementById("microphone"));
-var info = function (msg) {
-  document.getElementById("info").innerHTML = msg;
-};
-mic.onready = function () {
-  info("Microphone is ready to record");
-};
-mic.onaudiostart = function () {
-  info("Recording started");
-};
-mic.onaudioend = function () {
-  info("Recording stopped, processing started");
-};
-mic.onerror = function (err) {
-  info("Error: " + err);
-};
-mic.onresult = function (intent, entities) {
-  var result = kv("intent", intent);
-  for (var k in entities) {
-    var e = entities[k];
-    if (!(e instanceof Array)) {
-    	result += kv(k, e.value);
-    } else {
-      for (var i = 0; i < e.length; i++) {
-    	  result += kv(k, e[i].value);
-      }
-    }
-  }
-  
-  $.ajax({
-		data : { 
-			intent: result
-		},
-		success: function(data) {						
-			$('#result').html(syntaxHighlight(data));
-			$('#result').css('visibility', 'visible');
-		},
-		error: function(xhr, status, error) {
-			$('#result').html(syntaxHighlight(xhr.responseText));
-			$('#result-container').css('visibility', 'visible');
-		},
-		type: 'POST',
-		url: '/search'
-	});  
-};
-mic.connect("GCZJCLN3C4A472BHYLCAFSF7UTLYPHBX");
-// mic.start();
-// mic.stop();
+		<div class="row top-spacer">
+			<div class="col-md-4">
+				<div id="facets"></div>
+			</div>
+			<div class="col-md-8">
+				<div class="timeline-centered" id="objects"></div>
+				<div class="center" id="page-selection"></div>
+			</div>
+		</div>
+	</div>
 
-function kv (k, v) {
-	if (toString.call(v) !== "[object String]") {
-    	v = JSON.stringify(v);
-  	}
-  	return k + "=" + v + "\n";
-}
+	<script src="js/jquery.min.js" type="text/javascript"></script>
+	<script src="bootstrap3/js/bootstrap.min.js" type="text/javascript"></script>
+	<script src="js/jquery.bootpag.min.js" type="text/javascript"></script>
+	<script type="text/javascript">
+		var showImages = false;
+		var showExamples = true;
+		(function() {
 
-function syntaxHighlight(json) {
-    if (typeof json != 'string') {
-         json = JSON.stringify(json, undefined, 2);
-    }
-    json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
-        var cls = 'number';
-        if (/^"/.test(match)) {
-            if (/:$/.test(match)) {
-                cls = 'key';
-            } else {
-                cls = 'string';
-            }
-        } else if (/true|false/.test(match)) {
-            cls = 'boolean';
-        } else if (/null/.test(match)) {
-            cls = 'null';
-        }
-        return '<span class="' + cls + '">' + match + '</span>';
-    });
-}
+			var quotes = $(".quotes");
+			var quoteIndex = -1;
 
-$("#do-search").click(function() {
-	$.ajax({
-		data : { 
-			q: $('#q').val()
-		},
-		success : function(data) {						
-			$('#result').html(syntaxHighlight(data));
-			$('#result-container').css('visibility', 'visible');
-		},
-		error : function(xhr, status, error) {
-			$('#result').html(syntaxHighlight(xhr.responseText));
-			$('#result-container').css('visibility', 'visible');
-		},
-		type : 'POST',
-		url : '/search'
-	});
-});
-</script>
+			function showNextQuote() {
+				if (!showExamples) {
+					return;
+				}
+
+				++quoteIndex;
+				quotes.eq(quoteIndex % quotes.length).fadeIn(2000).delay(2000)
+						.fadeOut(2000, showNextQuote);
+			}
+			showNextQuote();
+		})();
+
+		$('#page-selection').bootpag({
+			total : 1
+		}).on("page", function(event, pageNumber) {
+			gotoPage(event, pageNumber);
+		});
+
+		function createDomElement(parentElement, elementName, className) {
+			var childElement = document.createElement(elementName);
+			if (className) {
+				childElement.className = className;
+			}
+			parentElement.appendChild(childElement);
+			return childElement;
+		}
+
+		function createDomElementWithText(parentElement, elementName,
+				className, text) {
+			var childElement = createDomElement(parentElement, elementName,
+					className);
+			childElement.appendChild(document.createTextNode(text));
+			return childElement;
+		}
+
+		function addDatePanel(container, value) {
+			var datePanel = createDomElement(container, 'div',
+					'panel panel-default');
+			var panelHeading = createDomElementWithText(datePanel, 'div',
+					'panel-heading', value);
+			var panelBody = createDomElement(datePanel, 'div', 'panel-body');
+			return panelBody;
+		}
+
+		function addObjectInfo(container, entry) {
+			var timelineEntry = createDomElement(container, 'article',
+					'timeline-entry');
+			var timelineEntryInner = createDomElement(timelineEntry, 'div',
+					'timeline-entry-inner');
+			var timelineIcon = createDomElement(timelineEntryInner, 'div',
+					'timeline-icon bg-info');
+			var icon = createDomElement(timelineIcon, 'i', 'entypo-suitcase');
+			var timelineLabel = createDomElement(timelineEntryInner, 'div',
+					'timeline-label');
+
+			if (entry.blob && document.getElementById('image-toggle').checked) {
+				var picture = createDomElement(timelineLabel, 'img',
+						'img-thumbnail pull-left');
+				picture.alt = '';
+				picture.src = 'https://dev.cspace.berkeley.edu/pahma_project/imageserver/blobs/'
+						+ entry.blob + '/derivatives/OriginalJpeg/content';
+			}
+
+			var header = createDomElementWithText(timelineLabel, 'h4', 'media-heading', entry.objmusno_s);
+			var objectName = createDomElementWithText(header, 'small', 'pull-right',
+					(entry.objname_s ? entry.objname_s : ''));
+			
+			var collectionDate = createDomElementWithText(timelineLabel, 'div', 'fnt-lighter fnt-arial',
+					(entry.objcolldate_s ? entry.objcolldate_s : ''));
+			
+			var description = createDomElementWithText(timelineLabel, 'p',
+					null, (entry.objdescr_s ? entry.objdescr_s : ''));
+		}
+
+		function showContents(container, data) {
+			var dateMap = {};
+			var collectionContainer;
+			for (var i = 0; i < data.length; i++) {
+				var entry = data[i];
+				if (!(entry.objcolldate_s in dateMap)) {
+					dateMap[entry.objcolldate_s] = true;
+				}
+				addObjectInfo(container, entry);
+			}
+		}
+
+		var facetsMap = {};
+		facetsMap['objassoccult_ss'] = 'Cultural Group';
+		facetsMap['objcollector_ss'] = 'Collector';
+		facetsMap['objcolldate_s'] = 'Collection Date';
+		facetsMap['objproddate_s'] = 'Produced Date';
+		facetsMap['objfcp_s'] = 'Collection Place';
+		facetsMap['objtype_txt'] = 'Type';
+		facetsMap['objname_s'] = 'Name';
+		facetsMap['objcontextuse_s'] = 'Context';
+
+		function addFacetTable(container, facetName, data) {
+			var tableContainer = createDomElement(container, 'div', 'row well');
+			var facetTable = createDomElement(tableContainer, 'table',
+					'table table-condensed');
+			var facetHeaderRow = createDomElement(facetTable, 'tr', null);
+			var facetNameHeader = createDomElementWithText(facetHeaderRow,
+					'th', null, facetName);
+			var facetCountHeader = createDomElementWithText(facetHeaderRow,
+					'th', null, 'Count');
+
+			for ( var key in data) {
+				if (!data[key]) {
+					continue;
+				}
+
+				var facetRow = createDomElement(facetTable, 'tr', null);
+				var keyCol = createDomElementWithText(facetRow, 'td', null, key);
+				var valCol = createDomElementWithText(facetRow, 'td', 'center',
+						data[key]);
+			}
+		}
+
+		function showFacets(container, data) {
+			if (data == null) {
+				return;
+			}
+
+			for ( var facetName in facetsMap) {
+				var facetTable = {};
+				if (data[facetName] != null) {
+					var facetField;
+					var facetCounts = data[facetName];
+					for (var i = 0; i < facetCounts.length; i++) {
+						if (facetCounts[i] && isNaN(facetCounts[i])) {
+							facetField = facetCounts[i];
+						} else {
+							if (facetField && facetCounts[i] > 0) {
+								facetTable[facetField] = facetCounts[i];
+							}
+						}
+					}
+					addFacetTable(container, facetsMap[facetName], facetTable);
+				}
+			}
+		}
+
+		var objectContainer = document.getElementById("objects");
+		var facetContainer = document.getElementById("facets");
+		var entries;
+		var solrQuery;
+
+		function showResults(data) {
+			solrQuery = data.responseHeader.params.q;
+			entries = [];
+			objectContainer.innerHTML = '';
+			facetContainer.innerHTML = '';
+
+			var startRow = data.response.start;
+			var numFound = data.response.numFound;
+			var facets = data.facet_counts.facet_fields;
+			var docs = data.response.docs;
+
+			for (var i = 0; i < docs.length; i++) {
+				var doc = docs[i];
+				var entry = {};
+				entry.objmusno_s = (doc.objmusno_s ? doc.objmusno_s : ''); // e.g. 1-2330
+				entry.objname_s = (doc.objname_s ? doc.objname_s : ''); // e.g. Basket
+				entry.objtype_s = (doc.objtype_s ? doc.objtype_s : ''); // e.g. ethnography
+				entry.objfilecode_ss = (doc.objfilecode_ss ? doc.objfilecode_ss
+						: ''); // 1.5 Household
+				entry.objdescr_s = (doc.objdescr_s ? doc.objdescr_s : ''); // description      
+				entry.objassoccult_ss = (doc.objassoccult_ss ? doc.objassoccult_ss
+						: ''); // e.g. Eastern Miwok
+				entry.objcollector_ss = (doc.objcollector_ss ? doc.objcollector_ss
+						: ''); // e.g. Alfred L. Kroeber [1876-1960]      
+
+				entry.sortkey = 'Unknown Date';
+				entry.objcolldate_s = doc.objcolldate_s; // collection date
+				if (entry.objcolldate_s != null) {
+					var match = /(\d{4})/.exec(entry.objcolldate_s);
+					if (match != null) {
+						entry.sortkey = match[1];
+					}
+				}
+
+				var blobs = doc.blob_ss; // image id         
+				if (blobs != null && blobs.length > 0) {
+					entry.blob = blobs[0];
+				}
+				entries.push(entry);
+			}
+
+			entries.sort(function(one, two) {
+				if (one.sortkey > two.sortkey) {
+					return -1;
+				}
+				if (one.sortkey < two.sortkey) {
+					return 1;
+				}
+				return 0;
+			});
+
+			showImages = document.getElementById('image-toggle').checked;
+			showFacets(facetContainer, facets);
+			showContents(objectContainer, entries);
+
+			if (entries.length / 0) {
+				var numberPages = Math.floor((numFound + entries.length - 1)
+						/ entries.length);
+				$('#page-selection').bootpag({
+					total : numberPages,
+					maxVisible : 10
+				});
+				$('#page-selection').css('visibility', 'visible');
+			}
+		}
+
+		$('#do-search').on('click', function(event) {
+			doSearch(event);
+		});
+
+		var isWorking = false;
+		function doSearch(event) {
+			if (isWorking) {
+				return;
+			}
+
+			showExamples = false;
+			event.preventDefault();
+			isWorking = true;
+			$.ajax({
+				data : {
+					q : $('#q').val()
+				},
+				success : function(data) {
+					showResults(data);
+					isWorking = false;
+				},
+				error : function(xhr, status, error) {
+					alert(xhr.responseText);
+					isWorking = false;
+				},
+				type : 'POST',
+				url : '/search'
+			});
+		}
+
+		function gotoPage(event, pageNumber) {
+			if (isWorking) {
+				return;
+			}
+
+			showExamples = false;
+			event.preventDefault();
+			var startRow = (pageNumber * entries.length) - entries.length;
+
+			isWorking = true;
+			$.ajax({
+				data : {
+					solr : solrQuery,
+					start : startRow
+				},
+				success : function(data) {
+					showResults(data);
+					isWorking = false;
+				},
+				error : function(xhr, status, error) {
+					alert(xhr.responseText);
+					isWorking = false;
+				},
+				type : 'POST',
+				url : '/search'
+			});
+		}
+	</script>
 </body>
-
-<script>
-</script>
-
 </html>

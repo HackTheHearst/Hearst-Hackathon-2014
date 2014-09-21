@@ -9,6 +9,7 @@ import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import com.google.appengine.labs.repackaged.org.json.JSONArray;
 import com.google.appengine.labs.repackaged.org.json.JSONException;
@@ -17,15 +18,20 @@ import com.google.appengine.labs.repackaged.org.json.JSONObject;
 public class Translator {
 
 	private final static String WIT_BASE_URL = "https://api.wit.ai/message";
-	private final static String WIT_ACCESS_TOKEN = "Bearer FEYKDMZJVX6DS2YRYWO24UNFAHZCHUSI";
+	private final static String WIT_ACCESS_TOKEN = "See https://wit.ai/";
 	private final static String WIT_API_VERSION = "application/vnd.wit.20140620+json";
 	
 	private final static String HEARST_BASE_URL = "https://apis-qa.berkeley.edu/hearst_museum/select";
-	private final static String HEARST_APP_ID = "99f70499";
-	private final static String HEARST_APP_KEY = "acfacfd4c175cf965962562b37e2647a";
+	private final static String HEARST_APP_ID = "See http://hackthehearst.berkeley.edu/api.html";
+	private final static String HEARST_APP_KEY = "See http://hackthehearst.berkeley.edu/api.html";
 	private final static String FACETS = 
-				"facet.field=objassoccult_ss&facet.field=objcollector_ss&facet.field=objcolldate_s&facet.field=objtype_txt";
+		"facet.field=objassoccult_ss&facet.field=objname_s&facet.field=objcontextuse_s&facet.field=objfcp_s&facet.field=objtype_s";
 	
+	private final static Logger LOGGER = Logger.getLogger(Translator.class.getName());
+	
+	/*
+	 * Convert natural langauge phrase to Wit intent
+	 */
 	public final static String executeWitQuery(String query) throws IOException {
 		query = URLEncoder.encode(query, "utf-8");
 		String endpoint = WIT_BASE_URL + "?q=" + query;
@@ -37,12 +43,19 @@ public class Translator {
 		
 		BufferedReader input = new BufferedReader(new InputStreamReader(
 				urlConnection.getInputStream()));
-		StringBuffer buffer = new StringBuffer();
-		String inputLine;
-		while ((inputLine = input.readLine()) != null) {
-			buffer.append(inputLine);
+		StringBuffer buffer;
+		try {
+			buffer = new StringBuffer();
+			String inputLine;
+			while ((inputLine = input.readLine()) != null) {
+				buffer.append(inputLine);
+			}
+			
+		} finally {
+			try {
+				input.close();
+			} catch (Exception e) {}	
 		}
-		input.close();
 		return buffer.toString();
 	}
 	
@@ -64,6 +77,9 @@ public class Translator {
 		}
 	}
 	
+	/*
+	 * Receive Wit intent and extract entities 
+	 */
 	public final static Map<String,String> translate(String witJson) throws JSONException {
 		Map<String,String> hearstMapping = new HashMap<String,String>();
 		JSONObject root = new JSONObject(witJson);		
@@ -78,17 +94,20 @@ public class Translator {
 				
 				JSONObject entities = outcome.getJSONObject("entities");
 				if (entities != null) {					
-					mapFields(entities, "number", "objcolldate_txt", "value", hearstMapping);
-					mapFields(entities, "location", "objfcpverbatim_txt", "value", hearstMapping);
-					mapFields(entities, "wikipedia_search_query", "objassoccult_txt", "value", hearstMapping);
-					mapFields(entities, "search_query", "objtype_txt", "value", hearstMapping);
-					mapFields(entities, "contact", "objcollector_txt", "value", hearstMapping);									
+					mapFields(entities, "number", "objproddate_txt", "value", hearstMapping);
+					mapFields(entities, "location", "objfcp_txt", "value", hearstMapping);
+					mapFields(entities, "Culture_Group", "objassoccult_txt", "value", hearstMapping);
+					mapFields(entities, "Object_Name", "objname_txt", "value", hearstMapping);
+					mapFields(entities, "Object_Context", "objcontextuse_txt", "value", hearstMapping);									
 				}
 			}
 		}		
 		return hearstMapping;
 	}
 	
+	/*
+	 * Compose query to Hearst API
+	 */
 	public final static String composeHearstQuery(Map<String,String> parameters) {
 		StringBuffer buffer = new StringBuffer();
 		Iterator<Map.Entry<String,String>> entries = parameters.entrySet().iterator();
@@ -104,9 +123,18 @@ public class Translator {
 		return buffer.toString();
 	}
 	
-	public final static String executeHearstQuery(String query) throws IOException {
+	public final static String executeHearstQuery(String query, int start, int rows) throws IOException {
+		LOGGER.info("Executing query - " + query);
 		query = URLEncoder.encode(query, "utf-8");
 		String params = "?q=" + query + "&wt=json&indent=on&facet=true&" + FACETS;
+		if (start > 0) {
+			params = params + "&start=" + start;
+		}
+		
+		if (rows > 0) {
+			params = params + "&rows=" + rows;
+		}
+		
 		String endpoint = HEARST_BASE_URL + params;
 		URL url = new URL(endpoint);
 		HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
@@ -117,11 +145,16 @@ public class Translator {
 		BufferedReader input = new BufferedReader(new InputStreamReader(
 				urlConnection.getInputStream()));
 		StringBuffer buffer = new StringBuffer();
-		String inputLine;
-		while ((inputLine = input.readLine()) != null) {
-			buffer.append(inputLine);
+		try {
+			String inputLine;
+			while ((inputLine = input.readLine()) != null) {
+				buffer.append(inputLine);
+			}
+		} finally {
+			try {
+				input.close();
+			} catch (Exception e) {}	
 		}
-		input.close();		
 		return buffer.toString();
 	}
 }
